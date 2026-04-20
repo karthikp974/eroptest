@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CampusERP — Complete College Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c1:#1e293b; --c2:#273549; --c3:#2f4060; --c4:#3d5273;
+  --accent:#4f46e5; --accent2:#4338ca; --accent-light:#eef2ff; --accent-muted:#c7d2fe;
+  --green:#16a34a; --green-bg:#f0fdf4; --green-t:#15803d;
+  --amber:#d97706; --amber-bg:#fffbeb; --amber-t:#92400e;
+  --red:#dc2626; --red-bg:#fef2f2; --red-t:#b91c1c;
+  --blue:#2563eb; --blue-bg:#eff6ff; --blue-t:#1d4ed8;
+  --teal:#0d9488; --teal-bg:#f0fdfa; --teal-t:#0f766e;
+  --rose:#e11d48; --rose-bg:#fff1f2; --rose-t:#be123c;
+  --violet:#7c3aed; --violet-bg:#f5f3ff; --violet-t:#6d28d9;
+  --slate:#475569; --slate-bg:#f8fafc; --slate-t:#334155;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --t1:#0f172a; --t2:#334155; --t3:#64748b; --t4:#94a3b8;
+  --white:#fff; --bg:#f1f5f9;
+  --r:8px; --r2:12px; --r3:20px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 8px 24px rgba(0,0,0,.12);
+  --sh3:0 24px 64px rgba(0,0,0,.18);
+  --sw:252px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Outfit',system-ui,sans-serif;font-size:14px;color:var(--t1);background:var(--bg);overflow:hidden}
+
+/* ─── LAYOUT ─── */
+.app{display:flex;height:100vh}
+.sidebar{width:var(--sw);background:var(--c1);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:100}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{height:58px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:20px;-webkit-overflow-scrolling:touch}
+
+/* ─── SIDEBAR ─── */
+.brand{padding:18px 16px 14px;border-bottom:1px solid var(--c3);flex-shrink:0}
+.brand-name{font-size:19px;font-weight:700;color:var(--white);letter-spacing:-.4px}
+.brand-tag{font-size:10px;color:#64748b;letter-spacing:.6px;text-transform:uppercase;margin-top:1px}
+.nav-sec{padding:12px 8px 2px}
+.nav-sec-lbl{font-size:9.5px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:#475569;padding:0 8px;margin-bottom:3px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:400;color:#94a3b8;transition:all .12s;user-select:none}
+.ni:hover{background:var(--c2);color:#cbd5e1}
+.ni.active{background:var(--accent);color:var(--white);font-weight:500}
+.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.75}
+.ni.active svg{opacity:1}
+.ni-badge{margin-left:auto;font-size:10px;font-weight:600;background:rgba(255,255,255,.15);color:var(--white);padding:1px 7px;border-radius:20px;min-width:20px;text-align:center}
+.ni.active .ni-badge{background:rgba(255,255,255,.25)}
+
+/* ─── TOPBAR ─── */
+.tb-title{font-size:15px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-search{position:relative;flex:0 0 auto}
+.tb-search input{padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;background:var(--bg);outline:none;font-family:inherit;width:200px;transition:all .15s;color:var(--t1)}
+.tb-search input:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.tb-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4);pointer-events:none}
+.tb-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--t3);position:relative;transition:background .12s;flex-shrink:0}
+.tb-btn:hover{background:var(--bg)}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--white)}
+.user-av{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0}
+.hmbg{display:none;width:36px;height:36px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);align-items:center;justify-content:center;cursor:pointer;color:var(--t2);flex-shrink:0}
+
+/* ─── PANELS ─── */
+.panel{display:none}.panel.active{display:block}
+
+/* ─── KPI GRID ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:box-shadow .15s}
+.kpi:hover{box-shadow:var(--sh2)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.kpi.ind::before{background:var(--accent)}
+.kpi.grn::before{background:var(--green)}
+.kpi.amb::before{background:var(--amber)}
+.kpi.red::before{background:var(--red)}
+.kpi.tel::before{background:var(--teal)}
+.kpi.vio::before{background:var(--violet)}
+.kpi.blu::before{background:var(--blue)}
+.kpi.ros::before{background:var(--rose)}
+.kpi-lbl{font-size:11px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.kpi-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--t4)}
+
+/* ─── CARDS ─── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:16px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.card-title{font-size:14px;font-weight:600}
+.card-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .12s;font-family:inherit;white-space:nowrap;user-select:none}
+.btn:active{transform:scale(.97)}
+.btn-pri{background:var(--accent);color:var(--white)}
+.btn-pri:hover{background:var(--accent2)}
+.btn-sec{background:var(--white);color:var(--t2);border:1px solid var(--border2)}
+.btn-sec:hover{background:var(--bg)}
+.btn-grn{background:var(--green-bg);color:var(--green-t);border:1px solid #bbf7d0}
+.btn-grn:hover{background:#dcfce7}
+.btn-red{background:var(--red-bg);color:var(--red-t);border:1px solid #fecaca}
+.btn-red:hover{background:#fee2e2}
+.btn-amb{background:var(--amber-bg);color:var(--amber-t);border:1px solid #fde68a}
+.btn-amb:hover{background:#fef3c7}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:6px;background:var(--bg);border:1px solid var(--border);color:var(--t3)}
+.btn-icon:hover{background:var(--white);color:var(--t1)}
+
+/* ─── BADGES ─── */
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.bi{background:var(--accent-light);color:var(--accent2)}
+.bg{background:var(--green-bg);color:var(--green-t)}
+.ba{background:var(--amber-bg);color:var(--amber-t)}
+.br{background:var(--red-bg);color:var(--red-t)}
+.bb{background:var(--blue-bg);color:var(--blue-t)}
+.bt{background:var(--teal-bg);color:var(--teal-t)}
+.bv{background:var(--violet-bg);color:var(--violet-t)}
+.bs{background:var(--slate-bg);color:var(--slate-t)}
+.bro{background:var(--rose-bg);color:var(--rose-t)}
+
+/* ─── TABLE ─── */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{font-size:10.5px;font-weight:600;color:var(--t3);text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;background:var(--bg)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+.tda{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+
+/* ─── FORMS ─── */
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fg label{font-size:12px;font-weight:500;color:var(--t2)}
+.fi,.fs,.fta{padding:9px 11px;border:1px solid var(--border2);border-radius:var(--r);font-size:13px;color:var(--t1);background:var(--white);outline:none;font-family:inherit;transition:border .12s;width:100%}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+.fta{resize:vertical;min-height:70px}
+.fs{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow.f3{grid-template-columns:1fr 1fr 1fr}
+.frow.f1{grid-template-columns:1fr}
+.fspan{grid-column:1/-1}
+@media(max-width:500px){.frow,.frow.f3{grid-template-columns:1fr}}
+
+/* ─── MODAL ─── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);padding:16px}
+.mo.open{display:flex}
+.mb{background:var(--white);border-radius:var(--r3);padding:24px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:var(--sh3);animation:moin .2s ease}
+.mb.lg{max-width:680px}
+@keyframes moin{from{opacity:0;transform:translateY(-14px) scale(.97)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.mt{font-size:16px;font-weight:700}
+.mx{width:30px;height:30px;border-radius:6px;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:16px}
+.mx:hover{background:var(--border)}
+.mf{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ─── CONFIRM ─── */
+.co{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px}
+.co.open{display:flex}
+.cb{background:var(--white);border-radius:var(--r2);padding:22px;width:100%;max-width:360px;box-shadow:var(--sh3)}
+.ct{font-size:15px;font-weight:700;margin-bottom:6px}
+.cm{font-size:13px;color:var(--t3);margin-bottom:18px;line-height:1.5}
+.ca{display:flex;gap:8px;justify-content:flex-end}
+
+/* ─── TOAST ─── */
+#tc{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--c1);color:var(--white);padding:11px 16px;border-radius:var(--r2);font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:var(--sh2);animation:tin .25s ease;min-width:220px;max-width:320px}
+.toast.ok{background:#14532d;border-left:3px solid var(--green)}
+.toast.er{background:#450a0a;border-left:3px solid var(--red)}
+.toast.in{background:var(--c3);border-left:3px solid var(--accent)}
+.toast.wa{background:#451a03;border-left:3px solid var(--amber)}
+@keyframes tin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+/* ─── FILTER BAR ─── */
+.fb{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.fi-s{flex:1;min-width:140px;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;outline:none;font-family:inherit;background:var(--white);color:var(--t1)}
+.fi-s:focus{border-color:var(--accent)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:2px;background:var(--bg);border-radius:var(--r);padding:3px;border:1px solid var(--border);margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
+.tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--t3);white-space:nowrap;transition:all .12s;user-select:none}
+.tab.active{background:var(--white);color:var(--t1);box-shadow:var(--sh)}
+
+/* ─── PROGRESS ─── */
+.pb{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px;background:var(--accent);transition:width .5s}
+
+/* ─── AVATAR ─── */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:40px 20px;color:var(--t4)}
+.empty svg{opacity:.3;margin-bottom:10px}
+.empty p{font-size:13px}
+
+/* ─── BREADCRUMB ─── */
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3);margin-bottom:14px;flex-wrap:wrap}
+.bc span{color:var(--t4)}
+
+/* ─── INFO ROW ─── */
+.ir{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ir:last-child{border-bottom:none}
+.ik{color:var(--t3)}
+
+/* ─── SYLLABUS UNIT ─── */
+.unit{border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.unit-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);cursor:pointer;user-select:none}
+.unit-body{padding:12px 14px;display:none}
+.unit.open .unit-body{display:block}
+.unit-topic{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}
+.unit-topic input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+
+/* ─── BOTTOM NAV ─── */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--white);border-top:1px solid var(--border);z-index:90;justify-content:space-around;align-items:center;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.bni{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:var(--r);cursor:pointer;flex:1;color:var(--t3);transition:color .12s}
+.bni span{font-size:9.5px;font-weight:500;line-height:1}
+.bni.active{color:var(--accent)}
+
+/* ─── MOBILE OVERLAY ─── */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;opacity:0;transition:opacity .3s;backdrop-filter:blur(2px)}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+
+/* ─── FEE STRUCTURE ─── */
+.fee-struct{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.fee-struct-hdr{background:var(--accent-light);padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.fee-struct-hdr strong{font-size:13px;color:var(--accent2)}
+
+/* ─── PAYMENT RECEIPT ─── */
+.receipt{border:2px solid var(--border);border-radius:var(--r2);padding:20px;background:var(--white)}
+.receipt-hdr{text-align:center;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:14px}
+.receipt-logo{font-size:18px;font-weight:700;color:var(--accent)}
+.receipt-num{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ─── STAT STRIP ─── */
+.ss{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ss-item{flex:1;min-width:80px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;text-align:center}
+.ss-val{font-size:18px;font-weight:700;line-height:1}
+.ss-lbl{font-size:10px;color:var(--t3);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+
+/* ════ RESPONSIVE ════ */
+@media(max-width:900px){
+  :root{--sw:220px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .g2,.g3{grid-template-columns:1fr}
+  .tb-search input{width:160px}
+}
+@media(max-width:640px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);width:272px}
+  .sidebar.open{transform:translateX(0)}
+  .hmbg{display:flex}
+  .tb-search{display:none}
+  .topbar{padding:0 12px;height:52px;gap:10px}
+  .tb-title{font-size:14px}
+  .content{padding:12px;padding-bottom:72px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+  .kpi{padding:12px 13px}
+  .kpi-val{font-size:20px}
+  .kpi-lbl{font-size:10px}
+  .card{padding:12px;border-radius:var(--r)}
+  .card-hdr{flex-direction:column;align-items:flex-start;gap:8px}
+  .card-acts{width:100%}
+  .card-acts .btn{flex:1;justify-content:center}
+  .btn{min-height:40px;padding:9px 14px}
+  .btn-sm{min-height:36px;padding:7px 12px}
+  .btn-xs{min-height:32px;padding:5px 9px}
+  .fi,.fs,.fta{font-size:16px;min-height:44px}
+  .fi-s{font-size:16px}
+  .mo{padding:0;align-items:flex-end}
+  .mb{border-radius:var(--r3) var(--r3) 0 0;max-height:92vh;padding:20px 16px 24px}
+  .mb.lg{max-width:100%}
+  .mf{flex-direction:column-reverse;gap:8px}
+  .mf .btn{width:100%;justify-content:center}
+  .cb{width:calc(100% - 32px)}
+  .ca{flex-direction:column-reverse;gap:8px}
+  .ca .btn{width:100%;justify-content:center}
+  #tc{bottom:70px;left:12px;right:12px}
+  .toast{min-width:0;width:100%}
+  .bnav{display:flex}
+  .tw{margin:0 -12px;padding:0 12px}
+  .fb{gap:6px}
+  .fb .btn{width:100%;justify-content:center}
+  .tda{flex-direction:column;gap:4px}
+  .tda .btn{width:100%;justify-content:center}
+  table{min-width:400px}
+  .ss{gap:6px}
+  .g2,.g3{grid-template-columns:1fr}
+}
+@media(max-width:380px){
+  .kpi-grid{gap:6px}
+  .kpi{padding:10px}
+  .kpi-val{font-size:18px}
+  .content{padding:10px;padding-bottom:68px}
+}
+</style>
+</head>
+<body>
+
+<div id="tc"></div>
+<div id="mobOverlay" onclick="closeSidebar()"></div>
+
+<!-- CONFIRM -->
+<div class="co" id="coEl">
+  <div class="cb">
+    <div class="ct" id="coTitle">Confirm</div>
+    <div class="cm" id="coMsg">Are you sure?</div>
+    <div class="ca">
+      <button class="btn btn-sec" onclick="closeCo()">Cancel</button>
+      <button class="btn btn-red" id="coOk">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="moEl">
+  <div class="mb" id="moBox">
+    <div class="mh">
+      <div class="mt" id="moTitle"></div>
+      <button class="mx" onclick="closeMo()">✕</button>
+    </div>
+    <div id="moBody"></div>
+    <div class="mf" id="moFoot"></div>
+  </div>
+</div>
+
+<div class="app">
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar" id="sidebar">
+  <div class="brand">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="brand-name">CampusERP</div>
+        <div class="brand-tag">College Management System</div>
+      </div>
+      <button onclick="closeSidebar()" style="display:none;id:sbClose;background:rgba(255,255,255,.1);border:none;color:#94a3b8;width:28px;height:28px;border-radius:6px;cursor:pointer;align-items:center;justify-content:center;font-size:14px" id="sbClose">✕</button>
+    </div>
+  </div>
+
+  <div style="flex:1;padding-bottom:12px;overflow-y:auto">
+    <div class="nav-sec">
+      <div class="nav-sec-lbl">Overview</div>
+      <div class="ni active" onclick="go(this,'dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+    </div>
+
+    <div class="nav-sec">
+      <div class="nav-sec-lbl">Structure</div>
+      <div class="ni" onclick="go(this,'branches')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Branches <span class="ni-badge" id="nb-branches">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'batches')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 0-4 0v2"/></svg>
+        Batches <span class="ni-badge" id="nb-batches">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'years')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Years <span class="ni-badge" id="nb-years">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'semesters')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Semesters <span class="ni-badge" id="nb-semesters">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'classes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Classes <span class="ni-badge" id="nb-classes">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'sections')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Sections <span class="ni-badge" id="nb-sections">0</span>
+      </div>
+    </div>
+
+    <div class="nav-sec">
+      <div class="nav-sec-lbl">Academics</div>
+      <div class="ni" onclick="go(this,'subjects')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Subjects <span class="ni-badge" id="nb-subjects">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'syllabus')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        Syllabus
+      </div>
+      <div class="ni" onclick="go(this,'teachers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Teachers <span class="ni-badge" id="nb-teachers">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'students')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Students <span class="ni-badge" id="nb-students">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'promotion')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 21 7 17 3"/><line x1="21" y1="7" x2="9" y2="7"/><polyline points="7 21 3 17 7 13"/><line x1="15" y1="17" x2="3" y2="17"/></svg>
+        Promotion
+      </div>
+    </div>
+
+    <div class="nav-sec">
+      <div class="nav-sec-lbl">Finance</div>
+      <div class="ni" onclick="go(this,'fees')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Fee Structure <span class="ni-badge" id="nb-fees">0</span>
+      </div>
+      <div class="ni" onclick="go(this,'payments')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Payments <span class="ni-badge" id="nb-payments">0</span>
+      </div>
+    </div>
+  </div>
+</div><!-- /sidebar -->
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <button class="hmbg" onclick="openSidebar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="tb-title" id="tbTitle">Dashboard</div>
+    <div class="tb-search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="gSearch" placeholder="Search…" oninput="gSearchFn(this.value)">
+    </div>
+    <button class="tb-btn" onclick="toast('No new notifications','in')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-dot"></div>
+    </button>
+    <div class="user-av" onclick="toast('Logged in as Admin','in')">AD</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="panel active" id="p-dashboard">
+      <div class="kpi-grid" id="dash-kpis"></div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Students per branch</div></div>
+          <div id="dash-branch-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Quick actions</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="dash-qa"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Recent payments</div></div>
+        <div class="tw"><table><thead><tr><th>Student</th><th>Amount</th><th>Fee Head</th><th>Date</th><th>Status</th></tr></thead><tbody id="dash-payments"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ BRANCHES ══ -->
+    <div class="panel" id="p-branches">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search branches…" oninput="renderBranches(this.value)">
+        <button class="btn btn-pri btn-sm" onclick="openAddBranch()">+ Add branch</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Code</th><th>Branch name</th><th>Duration</th><th>Total batches</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb-branches"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ BATCHES ══ -->
+    <div class="panel" id="p-batches">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search batches…" oninput="renderBatches(this.value)">
+        <select class="fi-s" style="max-width:180px" onchange="renderBatches('',this.value)">
+          <option value="">All branches</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddBatch()">+ Add batch</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Batch name</th><th>Branch</th><th>Start year</th><th>End year</th><th>Years</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb-batches"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ YEARS ══ -->
+    <div class="panel" id="p-years">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search years…" oninput="renderYears(this.value)">
+        <select class="fi-s" style="max-width:180px" id="yr-batch-filter" onchange="renderYears('',this.value)">
+          <option value="">All batches</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddYear()">+ Add year</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Year name</th><th>Batch</th><th>Branch</th><th>Semesters</th><th>Actions</th></tr></thead><tbody id="tb-years"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SEMESTERS ══ -->
+    <div class="panel" id="p-semesters">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search semesters…" oninput="renderSemesters(this.value)">
+        <select class="fi-s" style="max-width:180px" id="sem-year-filter" onchange="renderSemesters('',this.value)">
+          <option value="">All years</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddSemester()">+ Add semester</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Semester</th><th>Year</th><th>Batch</th><th>Branch</th><th>Subjects</th><th>Classes</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb-semesters"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ CLASSES ══ -->
+    <div class="panel" id="p-classes">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search classes…" oninput="renderClasses(this.value)">
+        <select class="fi-s" style="max-width:180px" id="cls-sem-filter" onchange="renderClasses('',this.value)">
+          <option value="">All semesters</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddClass()">+ Add class</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Class name</th><th>Semester</th><th>Branch</th><th>Sections</th><th>Capacity</th><th>Actions</th></tr></thead><tbody id="tb-classes"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SECTIONS ══ -->
+    <div class="panel" id="p-sections">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search sections…" oninput="renderSections(this.value)">
+        <select class="fi-s" style="max-width:180px" id="sec-cls-filter" onchange="renderSections('',this.value)">
+          <option value="">All classes</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddSection()">+ Add section</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Section</th><th>Class</th><th>Semester</th><th>Teacher-in-charge</th><th>Students</th><th>Capacity</th><th>Actions</th></tr></thead><tbody id="tb-sections"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SUBJECTS ══ -->
+    <div class="panel" id="p-subjects">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search subjects…" oninput="renderSubjects(this.value)">
+        <select class="fi-s" style="max-width:180px" id="subj-sem-filter" onchange="renderSubjects('',this.value)">
+          <option value="">All semesters</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddSubject()">+ Add subject</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Code</th><th>Subject name</th><th>Semester</th><th>Branch</th><th>Credits</th><th>Type</th><th>Teacher</th><th>Actions</th></tr></thead><tbody id="tb-subjects"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SYLLABUS ══ -->
+    <div class="panel" id="p-syllabus">
+      <div class="fb">
+        <select class="fi-s" id="syl-subj-sel" onchange="renderSyllabus()">
+          <option value="">Select subject…</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddUnit()">+ Add unit</button>
+      </div>
+      <div id="syl-content">
+        <div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><p>Select a subject to view syllabus</p></div>
+      </div>
+    </div>
+
+    <!-- ══ TEACHERS ══ -->
+    <div class="panel" id="p-teachers">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search teachers…" oninput="renderTeachers(this.value)">
+        <select class="fi-s" style="max-width:180px" id="tchr-branch-filter" onchange="renderTeachers('',this.value)">
+          <option value="">All branches</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddTeacher()">+ Add teacher</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Name</th><th>Emp ID</th><th>Branch</th><th>Subjects</th><th>Qualification</th><th>Phone</th><th>Actions</th></tr></thead><tbody id="tb-teachers"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ STUDENTS ══ -->
+    <div class="panel" id="p-students">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search students…" id="stu-search" oninput="renderStudents(this.value)">
+        <select class="fi-s" style="max-width:150px" id="stu-sec-filter" onchange="renderStudents(document.getElementById('stu-search').value,this.value)">
+          <option value="">All sections</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddStudent()">+ Add student</button>
+        <button class="btn btn-sec btn-sm" onclick="exportStudentsCSV()">⬇ CSV</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Roll No</th><th>Name</th><th>Branch</th><th>Section</th><th>Semester</th><th>Fee Status</th><th>Actions</th></tr></thead><tbody id="tb-students"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ PROMOTION ══ -->
+    <div class="panel" id="p-promotion">
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Promote students — year-end</div></div>
+        <div class="frow" style="margin-bottom:14px">
+          <div class="fg">
+            <label>From semester</label>
+            <select class="fs" id="prom-from" onchange="loadPromotionStudents()"><option value="">Select…</option></select>
+          </div>
+          <div class="fg">
+            <label>To semester</label>
+            <select class="fs" id="prom-to"><option value="">Select…</option></select>
+          </div>
+        </div>
+        <div class="ss" id="prom-stats" style="display:none"></div>
+        <div id="prom-table-wrap" style="display:none">
+          <div class="tw"><table><thead><tr><th><input type="checkbox" id="prom-all" onchange="toggleAllPromotion(this.checked)"></th><th>Roll No</th><th>Name</th><th>Attendance</th><th>CGPA</th><th>Fee Cleared</th><th>Eligible</th></tr></thead><tbody id="tb-promotion"></tbody></table></div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-pri" onclick="promoteSelected()">Promote selected students</button>
+            <button class="btn btn-sec" onclick="loadPromotionStudents()">Refresh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FEES ══ -->
+    <div class="panel" id="p-fees">
+      <div class="fb">
+        <input class="fi-s" placeholder="Search fee structures…" oninput="renderFees(this.value)">
+        <button class="btn btn-pri btn-sm" onclick="openAddFee()">+ Add fee structure</button>
+      </div>
+      <div id="fee-list"></div>
+    </div>
+
+    <!-- ══ PAYMENTS ══ -->
+    <div class="panel" id="p-payments">
+      <div class="ss" id="pay-stats"></div>
+      <div class="fb">
+        <input class="fi-s" placeholder="Search by student, receipt…" id="pay-search" oninput="renderPayments(this.value)">
+        <select class="fi-s" style="max-width:150px" id="pay-status-filter" onchange="renderPayments(document.getElementById('pay-search').value,this.value)">
+          <option value="">All status</option>
+          <option>Paid</option><option>Partial</option><option>Pending</option>
+        </select>
+        <button class="btn btn-pri btn-sm" onclick="openAddPayment()">+ Record payment</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Receipt #</th><th>Student</th><th>Branch</th><th>Fee head</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb-payments"></tbody></table></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <div class="bni active" id="bn0" onclick="go(this,'dashboard');setBN(0)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Home</span>
+  </div>
+  <div class="bni" id="bn1" onclick="go(this,'students');setBN(1)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    <span>Students</span>
+  </div>
+  <div class="bni" id="bn2" onclick="go(this,'payments');setBN(2)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <span>Payments</span>
+  </div>
+  <div class="bni" id="bn3" onclick="go(this,'subjects');setBN(3)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <span>Subjects</span>
+  </div>
+  <div class="bni" id="bn4" onclick="openSidebar()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>More</span>
+  </div>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let DB = {
+  branches: [
+    {id:'BR1',code:'CSE',name:'Computer Science & Engineering',duration:4,status:'Active'},
+    {id:'BR2',code:'ECE',name:'Electronics & Communication',duration:4,status:'Active'},
+    {id:'BR3',code:'MBA',name:'Business Administration',duration:2,status:'Active'},
+    {id:'BR4',code:'MCA',name:'Computer Applications',duration:3,status:'Active'},
+  ],
+  batches: [
+    {id:'BA1',name:'2022-2026',branchId:'BR1',startYear:2022,endYear:2026,status:'Active'},
+    {id:'BA2',name:'2023-2027',branchId:'BR1',startYear:2023,endYear:2027,status:'Active'},
+    {id:'BA3',name:'2022-2026',branchId:'BR2',startYear:2022,endYear:2026,status:'Active'},
+    {id:'BA4',name:'2022-2024',branchId:'BR3',startYear:2022,endYear:2024,status:'Active'},
+  ],
+  years: [
+    {id:'YR1',name:'Year 1',batchId:'BA1',order:1},
+    {id:'YR2',name:'Year 2',batchId:'BA1',order:2},
+    {id:'YR3',name:'Year 3',batchId:'BA1',order:3},
+    {id:'YR4',name:'Year 4',batchId:'BA1',order:4},
+    {id:'YR5',name:'Year 1',batchId:'BA3',order:1},
+    {id:'YR6',name:'Year 2',batchId:'BA3',order:2},
+  ],
+  semesters: [
+    {id:'SM1',name:'Semester 1',yearId:'YR1',order:1,status:'Completed'},
+    {id:'SM2',name:'Semester 2',yearId:'YR1',order:2,status:'Completed'},
+    {id:'SM3',name:'Semester 3',yearId:'YR2',order:3,status:'Active'},
+    {id:'SM4',name:'Semester 4',yearId:'YR2',order:4,status:'Upcoming'},
+    {id:'SM5',name:'Semester 1',yearId:'YR5',order:1,status:'Active'},
+  ],
+  classes: [
+    {id:'CL1',name:'CSE-S3-A',semesterId:'SM3',capacity:60},
+    {id:'CL2',name:'CSE-S3-B',semesterId:'SM3',capacity:60},
+    {id:'CL3',name:'ECE-S1-A',semesterId:'SM5',capacity:60},
+  ],
+  sections: [
+    {id:'SEC1',name:'A',classId:'CL1',teacherInChargeId:'T1',capacity:30},
+    {id:'SEC2',name:'B',classId:'CL1',teacherInChargeId:'T2',capacity:30},
+    {id:'SEC3',name:'A',classId:'CL2',teacherInChargeId:'T3',capacity:60},
+    {id:'SEC4',name:'A',classId:'CL3',teacherInChargeId:'T1',capacity:60},
+  ],
+  subjects: [
+    {id:'SU1',code:'CS301',name:'Data Structures',semesterId:'SM3',credits:4,type:'Theory',teacherId:'T1'},
+    {id:'SU2',code:'CS302',name:'Database Management',semesterId:'SM3',credits:4,type:'Theory',teacherId:'T2'},
+    {id:'SU3',code:'CS303',name:'Computer Networks',semesterId:'SM3',credits:3,type:'Theory',teacherId:'T3'},
+    {id:'SU4',code:'CS304',name:'DS Lab',semesterId:'SM3',credits:2,type:'Lab',teacherId:'T1'},
+    {id:'SU5',code:'EC101',name:'Circuit Theory',semesterId:'SM5',credits:4,type:'Theory',teacherId:'T4'},
+  ],
+  syllabus: {
+    'SU1':[
+      {id:'U1',title:'Unit 1: Arrays & Linked Lists',topics:['Arrays and their operations','Single linked list','Doubly linked list','Circular linked list'],done:[true,true,false,false]},
+      {id:'U2',title:'Unit 2: Stacks & Queues',topics:['Stack operations','Queue operations','Circular queue','Priority queue'],done:[true,false,false,false]},
+      {id:'U3',title:'Unit 3: Trees',topics:['Binary trees','BST','AVL trees','Heap'],done:[false,false,false,false]},
+    ],
+    'SU2':[
+      {id:'U4',title:'Unit 1: ER Model',topics:['Entity-Relationship model','Keys and constraints','ER to relational mapping'],done:[true,true,true]},
+      {id:'U5',title:'Unit 2: SQL',topics:['DDL commands','DML commands','Joins and subqueries','Aggregate functions'],done:[true,false,false,false]},
+    ],
+  },
+  teachers: [
+    {id:'T1',empId:'EMP001',name:'Dr. Ramesh Kumar',branchId:'BR1',qualification:'Ph.D Computer Science',phone:'9876543210',email:'ramesh@campus.edu',subjects:['SU1','SU4']},
+    {id:'T2',empId:'EMP002',name:'Prof. Sunita Rao',branchId:'BR1',qualification:'M.Tech',phone:'9876543211',email:'sunita@campus.edu',subjects:['SU2']},
+    {id:'T3',empId:'EMP003',name:'Mr. Arun Patel',branchId:'BR1',qualification:'M.E.',phone:'9876543212',email:'arun@campus.edu',subjects:['SU3']},
+    {id:'T4',empId:'EMP004',name:'Dr. Meena Nair',branchId:'BR2',qualification:'Ph.D Electronics',phone:'9876543213',email:'meena@campus.edu',subjects:['SU5']},
+  ],
+  students: [
+    {id:'ST1',rollNo:'22CS001',name:'Aanya Sharma',branchId:'BR1',sectionId:'SEC1',dob:'2004-03-12',phone:'9812345678',email:'aanya@s.edu',cgpa:8.7,attendance:88,feeStatus:'Paid'},
+    {id:'ST2',rollNo:'22CS002',name:'Rohan Mehta',branchId:'BR1',sectionId:'SEC1',dob:'2004-07-22',phone:'9812345679',email:'rohan@s.edu',cgpa:7.4,attendance:74,feeStatus:'Partial'},
+    {id:'ST3',rollNo:'22CS003',name:'Priya Reddy',branchId:'BR1',sectionId:'SEC2',dob:'2004-11-05',phone:'9812345680',email:'priya@s.edu',cgpa:6.1,attendance:62,feeStatus:'Pending'},
+    {id:'ST4',rollNo:'22CS004',name:'Dev Patel',branchId:'BR1',sectionId:'SEC1',dob:'2004-01-30',phone:'9812345681',email:'dev@s.edu',cgpa:9.1,attendance:95,feeStatus:'Paid'},
+    {id:'ST5',rollNo:'22EC001',name:'Kavya Nair',branchId:'BR2',sectionId:'SEC4',dob:'2004-06-15',phone:'9812345682',email:'kavya@s.edu',cgpa:7.8,attendance:81,feeStatus:'Paid'},
+    {id:'ST6',rollNo:'22EC002',name:'Arjun Singh',branchId:'BR2',sectionId:'SEC4',dob:'2003-09-20',phone:'9812345683',email:'arjun@s.edu',cgpa:8.3,attendance:90,feeStatus:'Pending'},
+  ],
+  fees: [
+    {id:'FE1',name:'Tuition Fee - CSE Year 1',branchId:'BR1',yearId:'YR1',amount:50000,dueDate:'2024-07-31',heads:['Tuition','Library','Lab','Sports']},
+    {id:'FE2',name:'Tuition Fee - CSE Year 2',branchId:'BR1',yearId:'YR2',amount:52000,dueDate:'2024-07-31',heads:['Tuition','Library','Lab']},
+    {id:'FE3',name:'Tuition Fee - ECE Year 1',branchId:'BR2',yearId:'YR5',amount:50000,dueDate:'2024-07-31',heads:['Tuition','Library','Lab','Sports']},
+  ],
+  payments: [
+    {id:'PAY1',receiptNo:'RCP2024001',studentId:'ST1',feeId:'FE2',amount:52000,paid:52000,date:'2024-07-15',mode:'Online',status:'Paid',notes:''},
+    {id:'PAY2',receiptNo:'RCP2024002',studentId:'ST2',feeId:'FE2',amount:52000,paid:26000,date:'2024-07-20',mode:'Cash',status:'Partial',notes:'Remaining by Aug 31'},
+    {id:'PAY3',receiptNo:'RCP2024003',studentId:'ST4',feeId:'FE2',amount:52000,paid:52000,date:'2024-07-10',mode:'DD',status:'Paid',notes:''},
+    {id:'PAY4',receiptNo:'RCP2024004',studentId:'ST5',feeId:'FE3',amount:50000,paid:50000,date:'2024-07-18',mode:'Online',status:'Paid',notes:''},
+    {id:'PAY5',receiptNo:'RCP2024005',studentId:'ST6',feeId:'FE3',amount:50000,paid:0,date:'',mode:'',status:'Pending',notes:''},
+    {id:'PAY6',receiptNo:'RCP2024006',studentId:'ST3',feeId:'FE2',amount:52000,paid:0,date:'',mode:'',status:'Pending',notes:''},
+  ],
+};
+
+let idCtr = 100;
+const uid = () => 'id'+(++idCtr);
+
+// ─── HELPERS ───
+const byId = (arr,id) => arr.find(x=>x.id===id);
+const branchName = id => byId(DB.branches,id)?.name||'—';
+const branchCode = id => byId(DB.branches,id)?.code||'—';
+const batchName = id => byId(DB.batches,id)?.name||'—';
+const yearName = id => byId(DB.years,id)?.name||'—';
+const semName = id => byId(DB.semesters,id)?.name||'—';
+const className = id => byId(DB.classes,id)?.name||'—';
+const sectionLabel = id => { const s=byId(DB.sections,id); if(!s) return '—'; return byId(DB.classes,s.classId)?.name+' §'+s.name; };
+const teacherName = id => byId(DB.teachers,id)?.name||'—';
+const studentName = id => byId(DB.students,id)?.name||'—';
+const feeName = id => byId(DB.fees,id)?.name||'—';
+const colorsArr = ['#4f46e5','#16a34a','#d97706','#dc2626','#0d9488','#7c3aed','#2563eb','#e11d48'];
+const avc = name => colorsArr[Math.abs([...name].reduce((h,c)=>h*31+c.charCodeAt(0),0))%colorsArr.length];
+const initials = n => n.split(' ').map(x=>x[0]||'').join('').toUpperCase().slice(0,2);
+
+// ─── MODAL HELPERS ───
+function openMo(title, body, footer, large=false) {
+  document.getElementById('moTitle').textContent=title;
+  document.getElementById('moBody').innerHTML=body;
+  document.getElementById('moFoot').innerHTML=footer;
+  document.getElementById('moBox').className='mb'+(large?' lg':'');
+  document.getElementById('moEl').classList.add('open');
+}
+function closeMo() { document.getElementById('moEl').classList.remove('open'); }
+document.getElementById('moEl').addEventListener('click',e=>{ if(e.target===document.getElementById('moEl')) closeMo(); });
+
+// ─── CONFIRM ───
+let coCallback=null;
+function confirm2(title,msg,cb) {
+  document.getElementById('coTitle').textContent=title;
+  document.getElementById('coMsg').textContent=msg;
+  coCallback=cb;
+  document.getElementById('coEl').classList.add('open');
+  document.getElementById('coOk').onclick=()=>{ closeCo(); cb(); };
+}
+function closeCo() { document.getElementById('coEl').classList.remove('open'); }
+
+// ─── TOAST ───
+function toast(msg,type='ok') {
+  const c=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const ic={ok:'✓',er:'✕',in:'ℹ',wa:'⚠'};
+  t.innerHTML=`<span>${ic[type]||'✓'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); },3000);
+}
+
+// ─── NAVIGATION ───
+const PAGE_TITLES = {
+  dashboard:'Dashboard',branches:'Branches',batches:'Batches',years:'Academic Years',
+  semesters:'Semesters',classes:'Classes',sections:'Sections',subjects:'Subjects',
+  syllabus:'Syllabus',teachers:'Teachers',students:'Students',promotion:'Student Promotion',
+  fees:'Fee Structure',payments:'Payments'
+};
+const RENDER_MAP = {
+  branches:renderBranches,batches:renderBatches,years:renderYears,semesters:renderSemesters,
+  classes:renderClasses,sections:renderSections,subjects:renderSubjects,syllabus:renderSyllabus,
+  teachers:renderTeachers,students:renderStudents,fees:renderFees,payments:renderPayments,
+  promotion:renderPromotion,dashboard:renderDashboard
+};
+
+function go(el, id) {
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(el?.classList?.contains('ni')) el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('p-'+id);
+  if(panel) panel.classList.add('active');
+  document.getElementById('tbTitle').textContent = PAGE_TITLES[id]||id;
+  if(RENDER_MAP[id]) RENDER_MAP[id]();
+  if(window.innerWidth<=640) closeSidebar();
+  updateBadges();
+}
+
+// ─── SIDEBAR MOBILE ───
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  const ov=document.getElementById('mobOverlay');
+  ov.style.display='block';
+  setTimeout(()=>ov.style.opacity='1',10);
+  document.getElementById('sbClose').style.display='flex';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  const ov=document.getElementById('mobOverlay');
+  ov.style.opacity='0';
+  setTimeout(()=>{ ov.style.display='none'; },300);
+}
+
+// Swipe gestures
+let _tx=0;
+document.addEventListener('touchstart',e=>_tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(_tx<24&&dx>60) openSidebar();
+  else if(dx<-60) closeSidebar();
+},{passive:true});
+
+// ─── BOTTOM NAV ───
+function setBN(i) {
+  document.querySelectorAll('.bni').forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+
+// ─── BADGES ───
+function updateBadges() {
+  document.getElementById('nb-branches').textContent=DB.branches.length;
+  document.getElementById('nb-batches').textContent=DB.batches.length;
+  document.getElementById('nb-years').textContent=DB.years.length;
+  document.getElementById('nb-semesters').textContent=DB.semesters.length;
+  document.getElementById('nb-classes').textContent=DB.classes.length;
+  document.getElementById('nb-sections').textContent=DB.sections.length;
+  document.getElementById('nb-subjects').textContent=DB.subjects.length;
+  document.getElementById('nb-teachers').textContent=DB.teachers.length;
+  document.getElementById('nb-students').textContent=DB.students.length;
+  document.getElementById('nb-fees').textContent=DB.fees.length;
+  document.getElementById('nb-payments').textContent=DB.payments.length;
+}
+
+// ═══ DASHBOARD ═══
+function renderDashboard() {
+  const totalStudents=DB.students.length;
+  const paidPayments=DB.payments.filter(p=>p.status==='Paid').length;
+  const totalCollected=DB.payments.reduce((a,p)=>a+p.paid,0);
+  const pendingFees=DB.payments.filter(p=>p.status!=='Paid').length;
+  document.getElementById('dash-kpis').innerHTML=`
+    <div class="kpi ind" onclick="go(document.querySelector('[onclick*=branches]'),'branches')"><div class="kpi-lbl">Branches</div><div class="kpi-val">${DB.branches.length}</div><div class="kpi-sub">Active programmes</div></div>
+    <div class="kpi grn" onclick="go(document.querySelector('[onclick*=students]'),'students')"><div class="kpi-lbl">Students</div><div class="kpi-val">${totalStudents}</div><div class="kpi-sub">Enrolled this year</div></div>
+    <div class="kpi amb" onclick="go(document.querySelector('[onclick*=teachers]'),'teachers')"><div class="kpi-lbl">Teachers</div><div class="kpi-val">${DB.teachers.length}</div><div class="kpi-sub">Faculty members</div></div>
+    <div class="kpi tel" onclick="go(document.querySelector('[onclick*=subjects]'),'subjects')"><div class="kpi-lbl">Subjects</div><div class="kpi-val">${DB.subjects.length}</div><div class="kpi-sub">This semester</div></div>
+    <div class="kpi blu" onclick="go(document.querySelector('[onclick*=payments]'),'payments')"><div class="kpi-lbl">Fee Collected</div><div class="kpi-val">₹${(totalCollected/100000).toFixed(1)}L</div><div class="kpi-sub">${paidPayments} payments</div></div>
+    <div class="kpi red"><div class="kpi-lbl">Fee Pending</div><div class="kpi-val">${pendingFees}</div><div class="kpi-sub">Students due</div></div>
+    <div class="kpi vio" onclick="go(document.querySelector('[onclick*=sections]'),'sections')"><div class="kpi-lbl">Sections</div><div class="kpi-val">${DB.sections.length}</div><div class="kpi-sub">Active classes</div></div>
+    <div class="kpi ros" onclick="go(document.querySelector('[onclick*=semesters]'),'semesters')"><div class="kpi-lbl">Semesters</div><div class="kpi-val">${DB.semesters.length}</div><div class="kpi-sub">Configured</div></div>`;
+
+  // Branch bars
+  const bars = DB.branches.map(b=>{
+    const count=DB.students.filter(s=>s.branchId===b.id).length;
+    const max=Math.max(...DB.branches.map(br=>DB.students.filter(s=>s.branchId===br.id).length),1);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:12px;color:var(--t2);width:100px;flex-shrink:0">${b.code}</div>
+      <div style="flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:var(--accent);width:${max?Math.round(count/max*100):0}%"></div></div>
+      <div style="font-size:12px;color:var(--t3);width:24px;text-align:right">${count}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('dash-branch-bars').innerHTML=bars||'<div class="empty"><p>No branches yet</p></div>';
+
+  // Quick actions
+  document.getElementById('dash-qa').innerHTML=[
+    ['+ Add student','students','btn-pri'],['+ Add teacher','teachers','btn-pri'],
+    ['Record payment','payments','btn-grn'],['View syllabus','syllabus','btn-sec'],
+    ['Promote students','promotion','btn-amb'],['Fee structure','fees','btn-sec'],
+  ].map(([lbl,pg,cls])=>`<button class="btn ${cls} btn-sm" style="width:100%;justify-content:center" onclick="go(null,'${pg}')">${lbl}</button>`).join('');
+
+  // Recent payments
+  const recent=DB.payments.slice(-5).reverse();
+  document.getElementById('dash-payments').innerHTML=recent.map(p=>{
+    const stu=byId(DB.students,p.studentId);
+    return `<tr><td style="font-weight:500">${stu?.name||'—'}</td><td>₹${p.paid.toLocaleString()}</td><td>${feeName(p.feeId)}</td><td>${p.date||'—'}</td><td><span class="bdg ${p.status==='Paid'?'bg':p.status==='Partial'?'ba':'br'}">${p.status}</span></td></tr>`;
+  }).join('')||`<tr><td colspan="5" class="empty"><p>No payments yet</p></td></tr>`;
+}
+
+// ═══ BRANCHES ═══
+function renderBranches(q='') {
+  const list=DB.branches.filter(b=>!q||b.name.toLowerCase().includes(q.toLowerCase())||b.code.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('tb-branches').innerHTML=list.map(b=>{
+    const batches=DB.batches.filter(x=>x.branchId===b.id).length;
+    const students=DB.students.filter(x=>x.branchId===b.id).length;
+    return `<tr>
+      <td><span class="bdg bi">${b.code}</span></td>
+      <td style="font-weight:500">${b.name}</td>
+      <td>${b.duration} years</td>
+      <td>${batches}</td>
+      <td>${students}</td>
+      <td><span class="bdg ${b.status==='Active'?'bg':'bs'}">${b.status}</span></td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editBranch('${b.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteBranch('${b.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="7"><div class="empty"><p>No branches found</p></div></td></tr>';
+}
+
+function openAddBranch(id='') {
+  const b=byId(DB.branches,id)||{};
+  openMo(id?'Edit branch':'Add branch',`
+    <div class="frow">
+      <div class="fg"><label>Branch code *</label><input class="fi" id="b-code" value="${b.code||''}" placeholder="e.g. CSE"></div>
+      <div class="fg"><label>Duration (years) *</label><input class="fi" id="b-dur" type="number" min="1" max="6" value="${b.duration||4}"></div>
+    </div>
+    <div class="fg"><label>Branch name *</label><input class="fi" id="b-name" value="${b.name||''}" placeholder="e.g. Computer Science & Engineering"></div>
+    <div class="fg"><label>Status</label><select class="fs" id="b-status"><option ${(!b.status||b.status==='Active')?'selected':''}>Active</option><option ${b.status==='Inactive'?'selected':''}>Inactive</option></select></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveBranch('${id}')">Save</button>`);
+}
+const editBranch=id=>openAddBranch(id);
+
+function saveBranch(id) {
+  const code=document.getElementById('b-code').value.trim();
+  const name=document.getElementById('b-name').value.trim();
+  if(!code||!name){toast('Code and name required','er');return;}
+  if(id) {
+    const b=byId(DB.branches,id); b.code=code; b.name=name;
+    b.duration=parseInt(document.getElementById('b-dur').value)||4;
+    b.status=document.getElementById('b-status').value;
+    toast('Branch updated','ok');
+  } else {
+    DB.branches.push({id:uid(),code,name,duration:parseInt(document.getElementById('b-dur').value)||4,status:document.getElementById('b-status').value});
+    toast('Branch added','ok');
+  }
+  closeMo(); renderBranches(); updateBadges(); refreshAllFilters();
+}
+
+function deleteBranch(id) {
+  const b=byId(DB.branches,id);
+  confirm2('Delete branch?',`Delete "${b.name}"? This may affect batches and students.`,()=>{
+    DB.branches=DB.branches.filter(x=>x.id!==id); renderBranches(); updateBadges(); toast('Branch deleted','in');
+  });
+}
+
+// ═══ BATCHES ═══
+function renderBatches(q='',branchFilter='') {
+  // Populate branch filter
+  const bf=document.querySelectorAll('#p-batches .fi-s')[1];
+  if(bf.options.length===1) DB.branches.forEach(b=>bf.add(new Option(b.name,b.id)));
+  const list=DB.batches.filter(b=>{
+    const qok=!q||b.name.toLowerCase().includes(q.toLowerCase());
+    const bok=!branchFilter||b.branchId===branchFilter;
+    return qok&&bok;
+  });
+  document.getElementById('tb-batches').innerHTML=list.map(b=>{
+    const years=DB.years.filter(y=>y.batchId===b.id).length;
+    const students=DB.students.filter(s=>{ const sec=byId(DB.sections,s.sectionId); const cls=byId(DB.classes,sec?.classId); const sem=byId(DB.semesters,cls?.semesterId); const yr=byId(DB.years,sem?.yearId); return yr?.batchId===b.id; }).length;
+    return `<tr>
+      <td style="font-weight:500">${b.name}</td>
+      <td>${branchName(b.branchId)}</td>
+      <td>${b.startYear}</td><td>${b.endYear}</td>
+      <td>${years}</td><td>${students}</td>
+      <td><span class="bdg ${b.status==='Active'?'bg':'bs'}">${b.status}</span></td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editBatch('${b.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteBatch('${b.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="8"><div class="empty"><p>No batches found</p></div></td></tr>';
+}
+
+function openAddBatch(id='') {
+  const b=byId(DB.batches,id)||{};
+  openMo(id?'Edit batch':'Add batch',`
+    <div class="frow">
+      <div class="fg"><label>Branch *</label><select class="fs" id="ba-branch">${DB.branches.map(br=>`<option value="${br.id}" ${b.branchId===br.id?'selected':''}>${br.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Batch name *</label><input class="fi" id="ba-name" value="${b.name||''}" placeholder="e.g. 2022-2026"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Start year</label><input class="fi" id="ba-start" type="number" value="${b.startYear||2024}"></div>
+      <div class="fg"><label>End year</label><input class="fi" id="ba-end" type="number" value="${b.endYear||2028}"></div>
+    </div>
+    <div class="fg"><label>Status</label><select class="fs" id="ba-status"><option ${(!b.status||b.status==='Active')?'selected':''}>Active</option><option ${b.status==='Completed'?'selected':''}>Completed</option><option ${b.status==='Inactive'?'selected':''}>Inactive</option></select></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveBatch('${id}')">Save</button>`);
+}
+const editBatch=id=>openAddBatch(id);
+
+function saveBatch(id) {
+  const name=document.getElementById('ba-name').value.trim();
+  const branchId=document.getElementById('ba-branch').value;
+  if(!name||!branchId){toast('Branch and name required','er');return;}
+  if(id){
+    const b=byId(DB.batches,id); b.name=name; b.branchId=branchId;
+    b.startYear=parseInt(document.getElementById('ba-start').value);
+    b.endYear=parseInt(document.getElementById('ba-end').value);
+    b.status=document.getElementById('ba-status').value;
+    toast('Batch updated','ok');
+  } else {
+    DB.batches.push({id:uid(),name,branchId,startYear:parseInt(document.getElementById('ba-start').value),endYear:parseInt(document.getElementById('ba-end').value),status:document.getElementById('ba-status').value});
+    toast('Batch added','ok');
+  }
+  closeMo(); renderBatches(); updateBadges(); refreshAllFilters();
+}
+
+function deleteBatch(id) {
+  const b=byId(DB.batches,id);
+  confirm2('Delete batch?',`Delete batch "${b.name}"?`,()=>{
+    DB.batches=DB.batches.filter(x=>x.id!==id); renderBatches(); updateBadges(); toast('Batch deleted','in');
+  });
+}
+
+// ═══ YEARS ═══
+function renderYears(q='',batchFilter='') {
+  const sel=document.getElementById('yr-batch-filter');
+  if(sel.options.length===1) DB.batches.forEach(b=>sel.add(new Option(`${b.name} (${branchCode(b.branchId)})`,b.id)));
+  const list=DB.years.filter(y=>{
+    const qok=!q||y.name.toLowerCase().includes(q.toLowerCase());
+    const bok=!batchFilter||y.batchId===batchFilter;
+    return qok&&bok;
+  });
+  document.getElementById('tb-years').innerHTML=list.map(y=>{
+    const sems=DB.semesters.filter(s=>s.yearId===y.id).length;
+    const batch=byId(DB.batches,y.batchId);
+    return `<tr>
+      <td style="font-weight:500">${y.name}</td>
+      <td>${batchName(y.batchId)}</td>
+      <td>${batch?branchCode(batch.branchId):'—'}</td>
+      <td>${sems}</td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editYear('${y.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteYear('${y.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="5"><div class="empty"><p>No years found</p></div></td></tr>';
+}
+
+function openAddYear(id='') {
+  const y=byId(DB.years,id)||{};
+  openMo(id?'Edit year':'Add year',`
+    <div class="fg"><label>Batch *</label><select class="fs" id="yr-batch">${DB.batches.map(b=>`<option value="${b.id}" ${y.batchId===b.id?'selected':''}>${b.name} — ${branchName(b.branchId)}</option>`).join('')}</select></div>
+    <div class="frow">
+      <div class="fg"><label>Year name *</label><input class="fi" id="yr-name" value="${y.name||''}" placeholder="e.g. Year 1"></div>
+      <div class="fg"><label>Order</label><input class="fi" id="yr-order" type="number" min="1" value="${y.order||1}"></div>
+    </div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveYear('${id}')">Save</button>`);
+}
+const editYear=id=>openAddYear(id);
+
+function saveYear(id) {
+  const name=document.getElementById('yr-name').value.trim();
+  const batchId=document.getElementById('yr-batch').value;
+  if(!name||!batchId){toast('Batch and name required','er');return;}
+  if(id){
+    const y=byId(DB.years,id); y.name=name; y.batchId=batchId; y.order=parseInt(document.getElementById('yr-order').value)||1;
+    toast('Year updated','ok');
+  } else {
+    DB.years.push({id:uid(),name,batchId,order:parseInt(document.getElementById('yr-order').value)||1});
+    toast('Year added','ok');
+  }
+  closeMo(); renderYears(); updateBadges(); refreshAllFilters();
+}
+
+function deleteYear(id) {
+  confirm2('Delete year?','Delete this academic year?',()=>{
+    DB.years=DB.years.filter(x=>x.id!==id); renderYears(); updateBadges(); toast('Year deleted','in');
+  });
+}
+
+// ═══ SEMESTERS ═══
+function renderSemesters(q='',yearFilter='') {
+  const sel=document.getElementById('sem-year-filter');
+  if(sel.options.length===1) DB.years.forEach(y=>sel.add(new Option(`${y.name} (${batchName(y.batchId)})`,y.id)));
+  const list=DB.semesters.filter(s=>{
+    const qok=!q||s.name.toLowerCase().includes(q.toLowerCase());
+    const yok=!yearFilter||s.yearId===yearFilter;
+    return qok&&yok;
+  });
+  document.getElementById('tb-semesters').innerHTML=list.map(s=>{
+    const yr=byId(DB.years,s.yearId); const ba=byId(DB.batches,yr?.batchId);
+    const subjs=DB.subjects.filter(x=>x.semesterId===s.id).length;
+    const clss=DB.classes.filter(x=>x.semesterId===s.id).length;
+    const sc={Active:'bg',Completed:'bt',Upcoming:'ba'};
+    return `<tr>
+      <td style="font-weight:500">${s.name}</td>
+      <td>${yearName(s.yearId)}</td>
+      <td>${ba?batchName(ba.id):'—'}</td>
+      <td>${ba?branchCode(ba.branchId):'—'}</td>
+      <td>${subjs}</td><td>${clss}</td>
+      <td><span class="bdg ${sc[s.status]||'bs'}">${s.status}</span></td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editSemester('${s.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteSemester('${s.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="8"><div class="empty"><p>No semesters found</p></div></td></tr>';
+}
+
+function openAddSemester(id='') {
+  const s=byId(DB.semesters,id)||{};
+  openMo(id?'Edit semester':'Add semester',`
+    <div class="fg"><label>Academic year *</label><select class="fs" id="sm-year">${DB.years.map(y=>`<option value="${y.id}" ${s.yearId===y.id?'selected':''}>${y.name} — ${batchName(y.batchId)}</option>`).join('')}</select></div>
+    <div class="frow">
+      <div class="fg"><label>Semester name *</label><input class="fi" id="sm-name" value="${s.name||''}" placeholder="e.g. Semester 3"></div>
+      <div class="fg"><label>Order</label><input class="fi" id="sm-order" type="number" value="${s.order||1}"></div>
+    </div>
+    <div class="fg"><label>Status</label><select class="fs" id="sm-status"><option ${s.status==='Active'?'selected':''}>Active</option><option ${(!s.status||s.status==='Upcoming')?'selected':''}>Upcoming</option><option ${s.status==='Completed'?'selected':''}>Completed</option></select></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveSemester('${id}')">Save</button>`);
+}
+const editSemester=id=>openAddSemester(id);
+
+function saveSemester(id) {
+  const name=document.getElementById('sm-name').value.trim();
+  const yearId=document.getElementById('sm-year').value;
+  if(!name||!yearId){toast('Year and name required','er');return;}
+  if(id){
+    const s=byId(DB.semesters,id); s.name=name; s.yearId=yearId;
+    s.order=parseInt(document.getElementById('sm-order').value)||1;
+    s.status=document.getElementById('sm-status').value;
+    toast('Semester updated','ok');
+  } else {
+    DB.semesters.push({id:uid(),name,yearId,order:parseInt(document.getElementById('sm-order').value)||1,status:document.getElementById('sm-status').value});
+    toast('Semester added','ok');
+  }
+  closeMo(); renderSemesters(); updateBadges(); refreshAllFilters();
+}
+
+function deleteSemester(id) {
+  confirm2('Delete semester?','Delete this semester and all its classes/subjects?',()=>{
+    DB.semesters=DB.semesters.filter(x=>x.id!==id); renderSemesters(); updateBadges(); toast('Semester deleted','in');
+  });
+}
+
+// ═══ CLASSES ═══
+function renderClasses(q='',semFilter='') {
+  const sel=document.getElementById('cls-sem-filter');
+  if(sel.options.length===1) DB.semesters.forEach(s=>sel.add(new Option(s.name,s.id)));
+  const list=DB.classes.filter(c=>{
+    const qok=!q||c.name.toLowerCase().includes(q.toLowerCase());
+    const sok=!semFilter||c.semesterId===semFilter;
+    return qok&&sok;
+  });
+  document.getElementById('tb-classes').innerHTML=list.map(c=>{
+    const sem=byId(DB.semesters,c.semesterId); const yr=byId(DB.years,sem?.yearId); const ba=byId(DB.batches,yr?.batchId);
+    const secs=DB.sections.filter(s=>s.classId===c.id).length;
+    return `<tr>
+      <td style="font-weight:500">${c.name}</td>
+      <td>${semName(c.semesterId)}</td>
+      <td>${ba?branchCode(ba.branchId):'—'}</td>
+      <td>${secs}</td><td>${c.capacity}</td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editClass('${c.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteClass('${c.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="6"><div class="empty"><p>No classes found</p></div></td></tr>';
+}
+
+function openAddClass(id='') {
+  const c=byId(DB.classes,id)||{};
+  openMo(id?'Edit class':'Add class',`
+    <div class="fg"><label>Semester *</label><select class="fs" id="cl-sem">${DB.semesters.map(s=>`<option value="${s.id}" ${c.semesterId===s.id?'selected':''}>${s.name} — ${yearName(s.yearId)}</option>`).join('')}</select></div>
+    <div class="frow">
+      <div class="fg"><label>Class name *</label><input class="fi" id="cl-name" value="${c.name||''}" placeholder="e.g. CSE-S3-A"></div>
+      <div class="fg"><label>Capacity</label><input class="fi" id="cl-cap" type="number" value="${c.capacity||60}"></div>
+    </div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveClass('${id}')">Save</button>`);
+}
+const editClass=id=>openAddClass(id);
+
+function saveClass(id) {
+  const name=document.getElementById('cl-name').value.trim();
+  const semesterId=document.getElementById('cl-sem').value;
+  if(!name||!semesterId){toast('Semester and name required','er');return;}
+  if(id){const c=byId(DB.classes,id);c.name=name;c.semesterId=semesterId;c.capacity=parseInt(document.getElementById('cl-cap').value)||60;toast('Class updated','ok');}
+  else{DB.classes.push({id:uid(),name,semesterId,capacity:parseInt(document.getElementById('cl-cap').value)||60});toast('Class added','ok');}
+  closeMo(); renderClasses(); updateBadges(); refreshAllFilters();
+}
+
+function deleteClass(id) {
+  confirm2('Delete class?','Delete this class and all its sections?',()=>{
+    DB.classes=DB.classes.filter(x=>x.id!==id); renderClasses(); updateBadges(); toast('Class deleted','in');
+  });
+}
+
+// ═══ SECTIONS ═══
+function renderSections(q='',classFilter='') {
+  const sel=document.getElementById('sec-cls-filter');
+  if(sel.options.length===1) DB.classes.forEach(c=>sel.add(new Option(c.name,c.id)));
+  const list=DB.sections.filter(s=>{
+    const qok=!q||s.name.toLowerCase().includes(q.toLowerCase());
+    const cok=!classFilter||s.classId===classFilter;
+    return qok&&cok;
+  });
+  document.getElementById('tb-sections').innerHTML=list.map(s=>{
+    const cls=byId(DB.classes,s.classId); const sem=byId(DB.semesters,cls?.semesterId);
+    const stuCount=DB.students.filter(st=>st.sectionId===s.id).length;
+    return `<tr>
+      <td style="font-weight:500">${className(s.classId)} — Section ${s.name}</td>
+      <td>${className(s.classId)}</td>
+      <td>${semName(cls?.semesterId)}</td>
+      <td>${teacherName(s.teacherInChargeId)}</td>
+      <td style="font-weight:600;color:${stuCount>=s.capacity?'var(--red-t)':'var(--t1)'}">${stuCount}</td>
+      <td>${s.capacity}</td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editSection('${s.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteSection('${s.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="7"><div class="empty"><p>No sections found</p></div></td></tr>';
+}
+
+function openAddSection(id='') {
+  const s=byId(DB.sections,id)||{};
+  openMo(id?'Edit section':'Add section',`
+    <div class="fg"><label>Class *</label><select class="fs" id="sec-cls">${DB.classes.map(c=>`<option value="${c.id}" ${s.classId===c.id?'selected':''}>${c.name}</option>`).join('')}</select></div>
+    <div class="frow">
+      <div class="fg"><label>Section name *</label><input class="fi" id="sec-name" value="${s.name||''}" placeholder="e.g. A"></div>
+      <div class="fg"><label>Capacity</label><input class="fi" id="sec-cap" type="number" value="${s.capacity||30}"></div>
+    </div>
+    <div class="fg"><label>Teacher-in-charge</label><select class="fs" id="sec-tic"><option value="">None</option>${DB.teachers.map(t=>`<option value="${t.id}" ${s.teacherInChargeId===t.id?'selected':''}>${t.name}</option>`).join('')}</select></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveSection('${id}')">Save</button>`);
+}
+const editSection=id=>openAddSection(id);
+
+function saveSection(id) {
+  const name=document.getElementById('sec-name').value.trim();
+  const classId=document.getElementById('sec-cls').value;
+  if(!name||!classId){toast('Class and section name required','er');return;}
+  if(id){const s=byId(DB.sections,id);s.name=name;s.classId=classId;s.capacity=parseInt(document.getElementById('sec-cap').value)||30;s.teacherInChargeId=document.getElementById('sec-tic').value;toast('Section updated','ok');}
+  else{DB.sections.push({id:uid(),name,classId,capacity:parseInt(document.getElementById('sec-cap').value)||30,teacherInChargeId:document.getElementById('sec-tic').value});toast('Section added','ok');}
+  closeMo(); renderSections(); updateBadges(); refreshAllFilters();
+}
+
+function deleteSection(id) {
+  confirm2('Delete section?','Delete this section? Students assigned to it will be unassigned.',()=>{
+    DB.sections=DB.sections.filter(x=>x.id!==id); renderSections(); updateBadges(); toast('Section deleted','in');
+  });
+}
+
+// ═══ SUBJECTS ═══
+function renderSubjects(q='',semFilter='') {
+  const sel=document.getElementById('subj-sem-filter');
+  if(sel.options.length===1) DB.semesters.forEach(s=>sel.add(new Option(s.name,s.id)));
+  const list=DB.subjects.filter(s=>{
+    const qok=!q||s.name.toLowerCase().includes(q.toLowerCase())||s.code.toLowerCase().includes(q.toLowerCase());
+    const sok=!semFilter||s.semesterId===semFilter;
+    return qok&&sok;
+  });
+  document.getElementById('tb-subjects').innerHTML=list.map(s=>{
+    return `<tr>
+      <td><span class="bdg bi">${s.code}</span></td>
+      <td style="font-weight:500">${s.name}</td>
+      <td>${semName(s.semesterId)}</td>
+      <td>${(()=>{const sm=byId(DB.semesters,s.semesterId);const yr=byId(DB.years,sm?.yearId);const ba=byId(DB.batches,yr?.batchId);return ba?branchCode(ba.branchId):'—';})()}</td>
+      <td>${s.credits}</td>
+      <td><span class="bdg ${s.type==='Theory'?'bb':'bt'}">${s.type}</span></td>
+      <td>${teacherName(s.teacherId)}</td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editSubject('${s.id}')">Edit</button>
+        <button class="btn btn-amb btn-xs" onclick="viewSyllabus('${s.id}')">Syllabus</button>
+        <button class="btn btn-red btn-xs" onclick="deleteSubject('${s.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="8"><div class="empty"><p>No subjects found</p></div></td></tr>';
+}
+
+function openAddSubject(id='') {
+  const s=byId(DB.subjects,id)||{};
+  openMo(id?'Edit subject':'Add subject',`
+    <div class="frow">
+      <div class="fg"><label>Subject code *</label><input class="fi" id="su-code" value="${s.code||''}" placeholder="e.g. CS301"></div>
+      <div class="fg"><label>Subject name *</label><input class="fi" id="su-name" value="${s.name||''}" placeholder="e.g. Data Structures"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Semester *</label><select class="fs" id="su-sem">${DB.semesters.map(sm=>`<option value="${sm.id}" ${s.semesterId===sm.id?'selected':''}>${sm.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Credits</label><input class="fi" id="su-credits" type="number" min="1" max="6" value="${s.credits||3}"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Type</label><select class="fs" id="su-type"><option ${s.type==='Theory'?'selected':''}>Theory</option><option ${s.type==='Lab'?'selected':''}>Lab</option><option ${s.type==='Elective'?'selected':''}>Elective</option></select></div>
+      <div class="fg"><label>Assigned teacher</label><select class="fs" id="su-teacher"><option value="">Unassigned</option>${DB.teachers.map(t=>`<option value="${t.id}" ${s.teacherId===t.id?'selected':''}>${t.name}</option>`).join('')}</select></div>
+    </div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveSubject('${id}')">Save</button>`);
+}
+const editSubject=id=>openAddSubject(id);
+
+function saveSubject(id) {
+  const code=document.getElementById('su-code').value.trim();
+  const name=document.getElementById('su-name').value.trim();
+  const semesterId=document.getElementById('su-sem').value;
+  if(!code||!name||!semesterId){toast('Code, name and semester required','er');return;}
+  if(id){const s=byId(DB.subjects,id);s.code=code;s.name=name;s.semesterId=semesterId;s.credits=parseInt(document.getElementById('su-credits').value)||3;s.type=document.getElementById('su-type').value;s.teacherId=document.getElementById('su-teacher').value;toast('Subject updated','ok');}
+  else{DB.subjects.push({id:uid(),code,name,semesterId,credits:parseInt(document.getElementById('su-credits').value)||3,type:document.getElementById('su-type').value,teacherId:document.getElementById('su-teacher').value});toast('Subject added','ok');}
+  closeMo(); renderSubjects(); updateBadges();
+}
+
+function deleteSubject(id) {
+  confirm2('Delete subject?','Delete this subject? Its syllabus will also be removed.',()=>{
+    DB.subjects=DB.subjects.filter(x=>x.id!==id); delete DB.syllabus[id]; renderSubjects(); updateBadges(); toast('Subject deleted','in');
+  });
+}
+
+function viewSyllabus(subjId) {
+  closeMo();
+  go(null,'syllabus');
+  document.querySelectorAll('.ni').forEach(n=>{ if(n.textContent.includes('Syllabus')) n.classList.add('active'); else n.classList.remove('active'); });
+  setTimeout(()=>{ document.getElementById('syl-subj-sel').value=subjId; renderSyllabus(); },50);
+}
+
+// ═══ SYLLABUS ═══
+function renderSyllabus() {
+  const sel=document.getElementById('syl-subj-sel');
+  if(sel.options.length===1) DB.subjects.forEach(s=>sel.add(new Option(`${s.code} — ${s.name}`,s.id)));
+  const subjId=sel.value;
+  const cont=document.getElementById('syl-content');
+  if(!subjId){cont.innerHTML='<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><p>Select a subject to view syllabus</p></div>';return;}
+  const units=DB.syllabus[subjId]||[];
+  if(!units.length){cont.innerHTML='<div class="empty"><p>No units added yet. Click "+ Add unit" to start.</p></div>';return;}
+  cont.innerHTML=units.map((u,ui)=>{
+    const done=u.done.filter(Boolean).length;
+    const pct=u.topics.length?Math.round(done/u.topics.length*100):0;
+    return `<div class="unit ${ui===0?'open':''}" id="unit-${ui}">
+      <div class="unit-hdr" onclick="toggleUnit(${ui})">
+        <span style="font-size:13px;font-weight:600;flex:1">${u.title}</span>
+        <span style="font-size:11px;color:var(--t3);margin-right:8px">${done}/${u.topics.length} done</span>
+        <span class="bdg ${pct===100?'bg':pct>50?'ba':'br'}" style="font-size:10px">${pct}%</span>
+        <svg style="margin-left:8px;width:14px;height:14px;transition:transform .2s;${ui===0?'transform:rotate(180deg)':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="unit-body">
+        <div class="pb" style="margin-bottom:10px"><div class="pf" style="width:${pct}%"></div></div>
+        ${u.topics.map((t,ti)=>`
+          <div class="unit-topic">
+            <input type="checkbox" ${u.done[ti]?'checked':''} onchange="toggleTopic('${subjId}',${ui},${ti},this.checked)">
+            <span style="font-size:13px;${u.done[ti]?'text-decoration:line-through;color:var(--t3)':''}">${t}</span>
+          </div>`).join('')}
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-pri btn-xs" onclick="openAddTopic('${subjId}',${ui})">+ Add topic</button>
+          <button class="btn btn-red btn-xs" onclick="deleteUnit('${subjId}',${ui})">Delete unit</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleUnit(i) {
+  document.getElementById('unit-'+i).classList.toggle('open');
+}
+
+function toggleTopic(subjId,ui,ti,val) {
+  DB.syllabus[subjId][ui].done[ti]=val;
+  renderSyllabus();
+}
+
+function openAddUnit() {
+  const subjId=document.getElementById('syl-subj-sel').value;
+  if(!subjId){toast('Select a subject first','wa');return;}
+  openMo('Add unit',`
+    <div class="fg"><label>Unit title *</label><input class="fi" id="u-title" placeholder="e.g. Unit 1: Arrays"></div>
+    <div class="fg"><label>Topics (one per line)</label><textarea class="fta" id="u-topics" placeholder="Topic 1&#10;Topic 2&#10;Topic 3" style="min-height:120px"></textarea></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveUnit('${subjId}')">Add unit</button>`);
+}
+
+function saveUnit(subjId) {
+  const title=document.getElementById('u-title').value.trim();
+  if(!title){toast('Title required','er');return;}
+  const topics=document.getElementById('u-topics').value.split('\n').map(t=>t.trim()).filter(Boolean);
+  if(!DB.syllabus[subjId]) DB.syllabus[subjId]=[];
+  DB.syllabus[subjId].push({id:uid(),title,topics,done:topics.map(()=>false)});
+  closeMo(); renderSyllabus(); toast('Unit added','ok');
+}
+
+function openAddTopic(subjId,ui) {
+  openMo('Add topic',`
+    <div class="fg"><label>Topic name *</label><input class="fi" id="tp-name" placeholder="Topic description"></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveTopic('${subjId}',${ui})">Add</button>`);
+}
+
+function saveTopic(subjId,ui) {
+  const name=document.getElementById('tp-name').value.trim();
+  if(!name){toast('Topic name required','er');return;}
+  DB.syllabus[subjId][ui].topics.push(name);
+  DB.syllabus[subjId][ui].done.push(false);
+  closeMo(); renderSyllabus(); toast('Topic added','ok');
+}
+
+function deleteUnit(subjId,ui) {
+  confirm2('Delete unit?','Delete this unit and all its topics?',()=>{
+    DB.syllabus[subjId].splice(ui,1); renderSyllabus(); toast('Unit deleted','in');
+  });
+}
+
+// ═══ TEACHERS ═══
+function renderTeachers(q='',branchFilter='') {
+  const sel=document.getElementById('tchr-branch-filter');
+  if(sel.options.length===1) DB.branches.forEach(b=>sel.add(new Option(b.name,b.id)));
+  const list=DB.teachers.filter(t=>{
+    const qok=!q||t.name.toLowerCase().includes(q.toLowerCase())||t.empId.toLowerCase().includes(q.toLowerCase());
+    const bok=!branchFilter||t.branchId===branchFilter;
+    return qok&&bok;
+  });
+  document.getElementById('tb-teachers').innerHTML=list.map(t=>{
+    const subjs=t.subjects.map(sid=>byId(DB.subjects,sid)?.code||'').filter(Boolean).join(', ')||'—';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:30px;height:30px;font-size:11px;background:${avc(t.name)};color:#fff">${initials(t.name)}</div><div><div style="font-weight:500">${t.name}</div><div style="font-size:11px;color:var(--t3)">${t.email}</div></div></div></td>
+      <td><span class="bdg bi">${t.empId}</span></td>
+      <td>${branchCode(t.branchId)}</td>
+      <td style="font-size:12px;color:var(--t3)">${subjs}</td>
+      <td style="font-size:12px">${t.qualification}</td>
+      <td style="font-size:12px">${t.phone}</td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editTeacher('${t.id}')">Edit</button>
+        <button class="btn btn-red btn-xs" onclick="deleteTeacher('${t.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="7"><div class="empty"><p>No teachers found</p></div></td></tr>';
+}
+
+function openAddTeacher(id='') {
+  const t=byId(DB.teachers,id)||{};
+  openMo(id?'Edit teacher':'Add teacher',`
+    <div class="frow">
+      <div class="fg"><label>Full name *</label><input class="fi" id="t-name" value="${t.name||''}" placeholder="Dr. Full Name"></div>
+      <div class="fg"><label>Employee ID *</label><input class="fi" id="t-empid" value="${t.empId||''}" placeholder="EMP001"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Branch *</label><select class="fs" id="t-branch">${DB.branches.map(b=>`<option value="${b.id}" ${t.branchId===b.id?'selected':''}>${b.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Qualification</label><input class="fi" id="t-qual" value="${t.qualification||''}" placeholder="Ph.D / M.Tech…"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Phone</label><input class="fi" id="t-phone" value="${t.phone||''}"></div>
+      <div class="fg"><label>Email</label><input class="fi" id="t-email" value="${t.email||''}"></div>
+    </div>
+    <div class="fg"><label>Assigned subjects</label><select class="fs" id="t-subjs" multiple style="min-height:100px">${DB.subjects.map(s=>`<option value="${s.id}" ${(t.subjects||[]).includes(s.id)?'selected':''}>${s.code} — ${s.name}</option>`).join('')}</select><small style="color:var(--t3);font-size:11px">Hold Ctrl/Cmd to select multiple</small></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveTeacher('${id}')">Save</button>`,true);
+}
+const editTeacher=id=>openAddTeacher(id);
+
+function saveTeacher(id) {
+  const name=document.getElementById('t-name').value.trim();
+  const empId=document.getElementById('t-empid').value.trim();
+  const branchId=document.getElementById('t-branch').value;
+  if(!name||!empId||!branchId){toast('Name, ID and branch required','er');return;}
+  const subjs=[...document.getElementById('t-subjs').selectedOptions].map(o=>o.value);
+  if(id){const t=byId(DB.teachers,id);t.name=name;t.empId=empId;t.branchId=branchId;t.qualification=document.getElementById('t-qual').value;t.phone=document.getElementById('t-phone').value;t.email=document.getElementById('t-email').value;t.subjects=subjs;toast('Teacher updated','ok');}
+  else{DB.teachers.push({id:uid(),name,empId,branchId,qualification:document.getElementById('t-qual').value,phone:document.getElementById('t-phone').value,email:document.getElementById('t-email').value,subjects:subjs});toast('Teacher added','ok');}
+  closeMo(); renderTeachers(); updateBadges();
+}
+
+function deleteTeacher(id) {
+  const t=byId(DB.teachers,id);
+  confirm2('Delete teacher?',`Remove ${t.name} from the system?`,()=>{
+    DB.teachers=DB.teachers.filter(x=>x.id!==id); renderTeachers(); updateBadges(); toast('Teacher removed','in');
+  });
+}
+
+// ═══ STUDENTS ═══
+function refreshSectionFilter() {
+  const sel=document.getElementById('stu-sec-filter');
+  while(sel.options.length>1) sel.remove(1);
+  DB.sections.forEach(s=>sel.add(new Option(sectionLabel(s.id),s.id)));
+}
+
+function renderStudents(q='',secFilter='') {
+  refreshSectionFilter();
+  const list=DB.students.filter(s=>{
+    const qok=!q||s.name.toLowerCase().includes(q.toLowerCase())||s.rollNo.toLowerCase().includes(q.toLowerCase());
+    const sok=!secFilter||s.sectionId===secFilter;
+    return qok&&sok;
+  });
+  document.getElementById('tb-students').innerHTML=list.map(s=>{
+    const sec=byId(DB.sections,s.sectionId);
+    const cls=byId(DB.classes,sec?.classId);
+    const sem=byId(DB.semesters,cls?.semesterId);
+    return `<tr>
+      <td><span class="bdg bi">${s.rollNo}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:28px;height:28px;font-size:10px;background:${avc(s.name)};color:#fff">${initials(s.name)}</div>${s.name}</div></td>
+      <td>${branchCode(s.branchId)}</td>
+      <td>${sectionLabel(s.sectionId)}</td>
+      <td>${sem?.name||'—'}</td>
+      <td><span class="bdg ${s.feeStatus==='Paid'?'bg':s.feeStatus==='Partial'?'ba':'br'}">${s.feeStatus}</span></td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="editStudent('${s.id}')">Edit</button>
+        <button class="btn btn-amb btn-xs" onclick="viewStudentPayments('${s.id}')">Fees</button>
+        <button class="btn btn-red btn-xs" onclick="deleteStudent('${s.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="7"><div class="empty"><p>No students found</p></div></td></tr>';
+}
+
+function openAddStudent(id='') {
+  const s=byId(DB.students,id)||{};
+  openMo(id?'Edit student':'Add student',`
+    <div class="frow">
+      <div class="fg"><label>Roll number *</label><input class="fi" id="s-roll" value="${s.rollNo||''}" placeholder="22CS001"></div>
+      <div class="fg"><label>Full name *</label><input class="fi" id="s-name" value="${s.name||''}" placeholder="Student full name"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Branch *</label><select class="fs" id="s-branch">${DB.branches.map(b=>`<option value="${b.id}" ${s.branchId===b.id?'selected':''}>${b.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Section *</label><select class="fs" id="s-section"><option value="">Select…</option>${DB.sections.map(sec=>`<option value="${sec.id}" ${s.sectionId===sec.id?'selected':''}>${sectionLabel(sec.id)}</option>`).join('')}</select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Date of birth</label><input class="fi" id="s-dob" type="date" value="${s.dob||''}"></div>
+      <div class="fg"><label>Phone</label><input class="fi" id="s-phone" value="${s.phone||''}"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Email</label><input class="fi" id="s-email" value="${s.email||''}"></div>
+      <div class="fg"><label>Fee status</label><select class="fs" id="s-fee"><option ${s.feeStatus==='Paid'?'selected':''}>Paid</option><option ${s.feeStatus==='Partial'?'selected':''}>Partial</option><option ${(!s.feeStatus||s.feeStatus==='Pending')?'selected':''}>Pending</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>CGPA</label><input class="fi" id="s-cgpa" type="number" step="0.1" min="0" max="10" value="${s.cgpa||''}"></div>
+      <div class="fg"><label>Attendance %</label><input class="fi" id="s-att" type="number" min="0" max="100" value="${s.attendance||''}"></div>
+    </div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveStudent('${id}')">Save</button>`,true);
+}
+const editStudent=id=>openAddStudent(id);
+
+function saveStudent(id) {
+  const rollNo=document.getElementById('s-roll').value.trim();
+  const name=document.getElementById('s-name').value.trim();
+  const branchId=document.getElementById('s-branch').value;
+  const sectionId=document.getElementById('s-section').value;
+  if(!rollNo||!name||!branchId||!sectionId){toast('Roll number, name, branch & section required','er');return;}
+  const data={rollNo,name,branchId,sectionId,dob:document.getElementById('s-dob').value,phone:document.getElementById('s-phone').value,email:document.getElementById('s-email').value,feeStatus:document.getElementById('s-fee').value,cgpa:parseFloat(document.getElementById('s-cgpa').value)||0,attendance:parseInt(document.getElementById('s-att').value)||0};
+  if(id){Object.assign(byId(DB.students,id),data);toast('Student updated','ok');}
+  else{DB.students.push({id:uid(),...data});toast('Student added','ok');}
+  closeMo(); renderStudents(); updateBadges();
+}
+
+function deleteStudent(id) {
+  const s=byId(DB.students,id);
+  confirm2('Delete student?',`Remove ${s.name} (${s.rollNo})?`,()=>{
+    DB.students=DB.students.filter(x=>x.id!==id); renderStudents(); updateBadges(); toast('Student removed','in');
+  });
+}
+
+function viewStudentPayments(studentId) {
+  go(null,'payments');
+  setTimeout(()=>{ document.getElementById('pay-search').value=studentName(studentId); renderPayments(studentName(studentId)); },50);
+}
+
+function exportStudentsCSV() {
+  const rows=[['Roll No','Name','Branch','Section','Semester','Fee Status','CGPA','Attendance'],...DB.students.map(s=>{
+    const sec=byId(DB.sections,s.sectionId);const cls=byId(DB.classes,sec?.classId);const sem=byId(DB.semesters,cls?.semesterId);
+    return[s.rollNo,s.name,branchCode(s.branchId),sectionLabel(s.sectionId),sem?.name||'',s.feeStatus,s.cgpa,s.attendance+'%'];
+  })];
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='students.csv';a.click();
+  toast('Students CSV downloaded','ok');
+}
+
+// ═══ PROMOTION ═══
+function renderPromotion() {
+  const fromSel=document.getElementById('prom-from');
+  const toSel=document.getElementById('prom-to');
+  if(fromSel.options.length===1) DB.semesters.forEach(s=>{ fromSel.add(new Option(s.name,s.id)); toSel.add(new Option(s.name,s.id)); });
+}
+
+function loadPromotionStudents() {
+  const fromId=document.getElementById('prom-from').value;
+  if(!fromId){document.getElementById('prom-table-wrap').style.display='none';document.getElementById('prom-stats').style.display='none';return;}
+  // Get students in sections of classes of this semester
+  const cls=DB.classes.filter(c=>c.semesterId===fromId);
+  const secs=DB.sections.filter(s=>cls.some(c=>c.id===s.classId));
+  const studs=DB.students.filter(s=>secs.some(sec=>sec.id===s.sectionId));
+
+  const eligible=studs.filter(s=>s.attendance>=75&&s.cgpa>=5&&s.feeStatus==='Paid').length;
+  document.getElementById('prom-stats').style.display='flex';
+  document.getElementById('prom-stats').innerHTML=`
+    <div class="ss-item"><div class="ss-val">${studs.length}</div><div class="ss-lbl">Total</div></div>
+    <div class="ss-item" style="color:var(--green-t)"><div class="ss-val" style="color:var(--green-t)">${eligible}</div><div class="ss-lbl">Eligible</div></div>
+    <div class="ss-item" style="color:var(--red-t)"><div class="ss-val" style="color:var(--red-t)">${studs.length-eligible}</div><div class="ss-lbl">Not eligible</div></div>`;
+
+  document.getElementById('tb-promotion').innerHTML=studs.map(s=>{
+    const ok=s.attendance>=75&&s.cgpa>=5&&s.feeStatus==='Paid';
+    return `<tr>
+      <td><input type="checkbox" class="prom-cb" value="${s.id}" ${ok?'checked':''} ${!ok?'style="accent-color:var(--red)"':''}></td>
+      <td>${s.rollNo}</td>
+      <td style="font-weight:500">${s.name}</td>
+      <td><span style="color:${s.attendance>=75?'var(--green-t)':'var(--red-t)'};font-weight:600">${s.attendance}%</span></td>
+      <td><span style="color:${s.cgpa>=5?'var(--green-t)':'var(--red-t)'};font-weight:600">${s.cgpa}</span></td>
+      <td><span class="bdg ${s.feeStatus==='Paid'?'bg':'br'}">${s.feeStatus}</span></td>
+      <td><span class="bdg ${ok?'bg':'br'}">${ok?'Eligible':'Not eligible'}</span></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7"><div class="empty"><p>No students in this semester</p></div></td></tr>';
+  document.getElementById('prom-table-wrap').style.display='block';
+}
+
+function toggleAllPromotion(checked) {
+  document.querySelectorAll('.prom-cb').forEach(cb=>cb.checked=checked);
+}
+
+function promoteSelected() {
+  const toId=document.getElementById('prom-to').value;
+  if(!toId){toast('Select a target semester','wa');return;}
+  const selected=[...document.querySelectorAll('.prom-cb:checked')].map(cb=>cb.value);
+  if(!selected.length){toast('No students selected','wa');return;}
+  // Get sections in target semester
+  const cls=DB.classes.filter(c=>c.semesterId===toId);
+  const secs=DB.sections.filter(s=>cls.some(c=>c.id===s.classId));
+  if(!secs.length){toast('No sections found in target semester. Create them first.','wa');return;}
+  selected.forEach(sid=>{
+    const stu=byId(DB.students,sid);
+    if(stu) stu.sectionId=secs[0].id;
+  });
+  toast(`${selected.length} student(s) promoted successfully`,'ok');
+  loadPromotionStudents();
+}
+
+// ═══ FEES ═══
+function renderFees(q='') {
+  const list=DB.fees.filter(f=>!q||f.name.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('fee-list').innerHTML=list.map(f=>{
+    const yr=byId(DB.years,f.yearId);
+    const payments=DB.payments.filter(p=>p.feeId===f.id);
+    const collected=payments.reduce((a,p)=>a+p.paid,0);
+    const rate=payments.length?Math.round(collected/payments.reduce((a,p)=>a+p.amount,0)*100):0;
+    return `<div class="fee-struct">
+      <div class="fee-struct-hdr">
+        <strong>${f.name}</strong>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:13px;font-weight:600;color:var(--accent2)">₹${f.amount.toLocaleString()}</span>
+          <button class="btn btn-sec btn-xs" onclick="editFee('${f.id}')">Edit</button>
+          <button class="btn btn-red btn-xs" onclick="deleteFee('${f.id}')">Delete</button>
+        </div>
+      </div>
+      <div style="padding:12px 14px">
+        <div class="frow" style="margin-bottom:8px">
+          <div><div style="font-size:11px;color:var(--t3)">Branch</div><div style="font-size:13px;font-weight:500">${branchName(f.branchId)}</div></div>
+          <div><div style="font-size:11px;color:var(--t3)">Year</div><div style="font-size:13px;font-weight:500">${yr?yr.name:'—'}</div></div>
+          <div><div style="font-size:11px;color:var(--t3)">Due date</div><div style="font-size:13px;font-weight:500">${f.dueDate}</div></div>
+          <div><div style="font-size:11px;color:var(--t3)">Collection</div><div style="font-size:13px;font-weight:600;color:${rate>=80?'var(--green-t)':rate>=50?'var(--amber-t)':'var(--red-t)'}">${rate}%</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Fee heads: ${f.heads.join(' · ')}</div>
+        <div class="pb"><div class="pf" style="width:${rate}%;background:${rate>=80?'var(--green)':rate>=50?'var(--amber)':'var(--red)'}"></div></div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty"><p>No fee structures found. Add one to get started.</p></div>';
+}
+
+function openAddFee(id='') {
+  const f=byId(DB.fees,id)||{};
+  openMo(id?'Edit fee structure':'Add fee structure',`
+    <div class="fg"><label>Fee structure name *</label><input class="fi" id="fe-name" value="${f.name||''}" placeholder="e.g. Tuition Fee - CSE Year 1"></div>
+    <div class="frow">
+      <div class="fg"><label>Branch *</label><select class="fs" id="fe-branch">${DB.branches.map(b=>`<option value="${b.id}" ${f.branchId===b.id?'selected':''}>${b.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Academic year</label><select class="fs" id="fe-year"><option value="">None</option>${DB.years.map(y=>`<option value="${y.id}" ${f.yearId===y.id?'selected':''}>${y.name} — ${batchName(y.batchId)}</option>`).join('')}</select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Total amount (₹) *</label><input class="fi" id="fe-amount" type="number" value="${f.amount||''}" placeholder="50000"></div>
+      <div class="fg"><label>Due date</label><input class="fi" id="fe-due" type="date" value="${f.dueDate||''}"></div>
+    </div>
+    <div class="fg"><label>Fee heads (comma separated)</label><input class="fi" id="fe-heads" value="${(f.heads||[]).join(', ')}" placeholder="Tuition, Library, Lab, Sports"></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="saveFee('${id}')">Save</button>`);
+}
+const editFee=id=>openAddFee(id);
+
+function saveFee(id) {
+  const name=document.getElementById('fe-name').value.trim();
+  const branchId=document.getElementById('fe-branch').value;
+  const amount=parseInt(document.getElementById('fe-amount').value);
+  if(!name||!branchId||!amount){toast('Name, branch and amount required','er');return;}
+  const heads=document.getElementById('fe-heads').value.split(',').map(h=>h.trim()).filter(Boolean);
+  if(id){const f=byId(DB.fees,id);f.name=name;f.branchId=branchId;f.yearId=document.getElementById('fe-year').value;f.amount=amount;f.dueDate=document.getElementById('fe-due').value;f.heads=heads;toast('Fee structure updated','ok');}
+  else{DB.fees.push({id:uid(),name,branchId,yearId:document.getElementById('fe-year').value,amount,dueDate:document.getElementById('fe-due').value,heads});toast('Fee structure added','ok');}
+  closeMo(); renderFees(); updateBadges();
+}
+
+function deleteFee(id) {
+  confirm2('Delete fee structure?','This will not delete existing payment records.',()=>{
+    DB.fees=DB.fees.filter(x=>x.id!==id); renderFees(); updateBadges(); toast('Fee structure deleted','in');
+  });
+}
+
+// ═══ PAYMENTS ═══
+function renderPayments(q='',statusFilter='') {
+  const paid=DB.payments.filter(p=>p.status==='Paid').reduce((a,p)=>a+p.paid,0);
+  const total=DB.payments.reduce((a,p)=>a+p.amount,0);
+  const pending=DB.payments.filter(p=>p.status!=='Paid').length;
+  document.getElementById('pay-stats').innerHTML=`
+    <div class="ss-item"><div class="ss-val" style="color:var(--green-t)">₹${(paid/100000).toFixed(1)}L</div><div class="ss-lbl">Collected</div></div>
+    <div class="ss-item"><div class="ss-val" style="color:var(--red-t)">₹${((total-paid)/100000).toFixed(1)}L</div><div class="ss-lbl">Pending</div></div>
+    <div class="ss-item"><div class="ss-val">${DB.payments.filter(p=>p.status==='Paid').length}</div><div class="ss-lbl">Paid</div></div>
+    <div class="ss-item"><div class="ss-val" style="color:var(--amber-t)">${pending}</div><div class="ss-lbl">Outstanding</div></div>`;
+
+  const list=DB.payments.filter(p=>{
+    const stu=byId(DB.students,p.studentId);
+    const qok=!q||stu?.name.toLowerCase().includes(q.toLowerCase())||p.receiptNo.toLowerCase().includes(q.toLowerCase());
+    const sok=!statusFilter||p.status===statusFilter;
+    return qok&&sok;
+  });
+  document.getElementById('tb-payments').innerHTML=list.map(p=>{
+    const stu=byId(DB.students,p.studentId);
+    const bal=p.amount-p.paid;
+    return `<tr>
+      <td><span class="bdg bi" style="font-size:10px">${p.receiptNo}</span></td>
+      <td style="font-weight:500">${stu?.name||'—'}</td>
+      <td>${stu?branchCode(stu.branchId):'—'}</td>
+      <td style="font-size:12px;color:var(--t3)">${feeName(p.feeId)}</td>
+      <td>₹${p.amount.toLocaleString()}</td>
+      <td style="font-weight:600;color:var(--green-t)">₹${p.paid.toLocaleString()}</td>
+      <td style="font-weight:600;color:${bal>0?'var(--red-t)':'var(--t3)'}">₹${bal.toLocaleString()}</td>
+      <td style="font-size:12px">${p.date||'—'}</td>
+      <td><span class="bdg ${p.status==='Paid'?'bg':p.status==='Partial'?'ba':'br'}">${p.status}</span></td>
+      <td><div class="tda">
+        <button class="btn btn-sec btn-xs" onclick="viewReceipt('${p.id}')">Receipt</button>
+        ${p.status!=='Paid'?`<button class="btn btn-grn btn-xs" onclick="markPaid('${p.id}')">Mark paid</button>`:''}
+        <button class="btn btn-red btn-xs" onclick="deletePayment('${p.id}')">Delete</button>
+      </div></td></tr>`;
+  }).join('')||'<tr><td colspan="10"><div class="empty"><p>No payments found</p></div></td></tr>';
+}
+
+function openAddPayment() {
+  openMo('Record payment',`
+    <div class="frow">
+      <div class="fg"><label>Student *</label><select class="fs" id="py-stu"><option value="">Select student…</option>${DB.students.map(s=>`<option value="${s.id}">${s.rollNo} — ${s.name}</option>`).join('')}</select></div>
+      <div class="fg"><label>Fee structure *</label><select class="fs" id="py-fee"><option value="">Select…</option>${DB.fees.map(f=>`<option value="${f.id}">${f.name} (₹${f.amount.toLocaleString()})</option>`).join('')}</select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Total amount (₹)</label><input class="fi" id="py-total" type="number" placeholder="Auto-filled from fee"></div>
+      <div class="fg"><label>Amount paid (₹) *</label><input class="fi" id="py-paid" type="number" placeholder="0"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Payment date</label><input class="fi" id="py-date" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="fg"><label>Mode</label><select class="fs" id="py-mode"><option>Online</option><option>Cash</option><option>DD</option><option>Cheque</option><option>UPI</option></select></div>
+    </div>
+    <div class="fg"><label>Notes</label><input class="fi" id="py-notes" placeholder="Any remarks…"></div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Cancel</button><button class="btn btn-pri" onclick="savePayment()">Record</button>`);
+  document.getElementById('py-fee').addEventListener('change',function(){
+    const f=byId(DB.fees,this.value);
+    if(f) document.getElementById('py-total').value=f.amount;
+  });
+}
+
+function savePayment() {
+  const studentId=document.getElementById('py-stu').value;
+  const feeId=document.getElementById('py-fee').value;
+  const paid=parseInt(document.getElementById('py-paid').value)||0;
+  const total=parseInt(document.getElementById('py-total').value)||byId(DB.fees,feeId)?.amount||0;
+  if(!studentId||!feeId){toast('Student and fee required','er');return;}
+  if(paid<0||paid>total){toast('Paid amount must be between 0 and total','er');return;}
+  const status=paid===0?'Pending':paid>=total?'Paid':'Partial';
+  const receiptNo='RCP'+(Date.now()+'').slice(-6);
+  DB.payments.push({id:uid(),receiptNo,studentId,feeId,amount:total,paid,date:document.getElementById('py-date').value,mode:document.getElementById('py-mode').value,status,notes:document.getElementById('py-notes').value});
+  // Update student fee status
+  const stu=byId(DB.students,studentId);
+  if(stu) stu.feeStatus=status;
+  closeMo(); renderPayments(); updateBadges(); toast('Payment recorded — '+receiptNo,'ok');
+}
+
+function markPaid(id) {
+  const p=byId(DB.payments,id);
+  p.paid=p.amount; p.status='Paid'; p.date=new Date().toISOString().split('T')[0];
+  const stu=byId(DB.students,p.studentId);
+  if(stu) stu.feeStatus='Paid';
+  renderPayments(); toast('Payment marked as paid','ok');
+}
+
+function viewReceipt(id) {
+  const p=byId(DB.payments,id);
+  const stu=byId(DB.students,p.studentId);
+  const fee=byId(DB.fees,p.feeId);
+  openMo('Payment receipt',`
+    <div class="receipt">
+      <div class="receipt-hdr">
+        <div class="receipt-logo">CampusERP</div>
+        <div style="font-size:14px;font-weight:600;margin-top:4px">PAYMENT RECEIPT</div>
+        <div class="receipt-num">Receipt No: ${p.receiptNo}</div>
+      </div>
+      <div class="ir"><span class="ik">Student name</span><span style="font-weight:600">${stu?.name||'—'}</span></div>
+      <div class="ir"><span class="ik">Roll number</span><span>${stu?.rollNo||'—'}</span></div>
+      <div class="ir"><span class="ik">Branch</span><span>${stu?branchName(stu.branchId):'—'}</span></div>
+      <div class="ir"><span class="ik">Fee head</span><span>${fee?.name||'—'}</span></div>
+      <div class="ir"><span class="ik">Total amount</span><span>₹${p.amount.toLocaleString()}</span></div>
+      <div class="ir"><span class="ik">Amount paid</span><span style="font-weight:700;color:var(--green-t)">₹${p.paid.toLocaleString()}</span></div>
+      <div class="ir"><span class="ik">Balance</span><span style="font-weight:600;color:${p.amount-p.paid>0?'var(--red-t)':'var(--green-t)'}">₹${(p.amount-p.paid).toLocaleString()}</span></div>
+      <div class="ir"><span class="ik">Payment date</span><span>${p.date||'—'}</span></div>
+      <div class="ir"><span class="ik">Mode</span><span>${p.mode||'—'}</span></div>
+      <div class="ir"><span class="ik">Status</span><span class="bdg ${p.status==='Paid'?'bg':p.status==='Partial'?'ba':'br'}">${p.status}</span></div>
+      ${p.notes?`<div class="ir"><span class="ik">Notes</span><span>${p.notes}</span></div>`:''}
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--t4);text-align:center">Generated on ${new Date().toLocaleString()}</div>
+    </div>`,
+    `<button class="btn btn-sec" onclick="closeMo()">Close</button><button class="btn btn-pri" onclick="printReceipt()">Print</button>`);
+}
+
+function printReceipt() {
+  window.print();
+}
+
+function deletePayment(id) {
+  confirm2('Delete payment?','Delete this payment record?',()=>{
+    DB.payments=DB.payments.filter(x=>x.id!==id); renderPayments(); updateBadges(); toast('Payment deleted','in');
+  });
+}
+
+// ─── GLOBAL SEARCH ───
+function gSearchFn(q) {
+  if(!q.trim()) return;
+  const students=DB.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())||s.rollNo.toLowerCase().includes(q.toLowerCase()));
+  if(students.length) { go(null,'students'); document.getElementById('stu-search').value=q; renderStudents(q); }
+}
+
+// ─── REFRESH ALL FILTERS ───
+function refreshAllFilters() {
+  // Reset selects so they re-populate
+  ['yr-batch-filter','sem-year-filter','cls-sem-filter','sec-cls-filter','subj-sem-filter','tchr-branch-filter'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel) { const val=sel.value; while(sel.options.length>1) sel.remove(1); sel.value=val; }
+  });
+  ['syl-subj-sel'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel) { const val=sel.value; while(sel.options.length>1) sel.remove(1); sel.value=val; }
+  });
+}
+
+// ─── INIT ───
+updateBadges();
+renderDashboard();
+</script>
+</body>
+</html>
